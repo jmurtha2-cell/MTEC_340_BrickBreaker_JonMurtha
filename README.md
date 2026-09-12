@@ -5,6 +5,4 @@
 - This game is supposed to have a working paddle that moves left and right based on left and right arrow keys.
 - Collision and a moving ball have not been implemented yet, based on what we were able to cover on last week's lesson.
 
-<video width="640" controls autoplay muted>
-  <source src="./Video/BrickBreaker_Test_Video.mp4" type="video/mp4">
-</video>
+[Video Google Drive File](https://drive.google.com/file/d/1HKQ_Fo_g8pKM_6518ac6FuYqWdggjv2A/view?usp=sharing)
