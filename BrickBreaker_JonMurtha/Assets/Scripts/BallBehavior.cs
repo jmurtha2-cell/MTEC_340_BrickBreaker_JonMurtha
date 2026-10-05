@@ -2,17 +2,20 @@ using UnityEngine;
 
 public class BallBehavior : MonoBehaviour
 {
-    [SerializeField] private float _launchForce = 5.0f;
-    [SerializeField] private float _paddleInfluence = 0.4f;
+    [Header("Ball Properties")]
+    [SerializeField] private float _launchForce = 7.0f;
+    [SerializeField, Range(0.0f, 1.0f)] private float _steepnessThreshold = 0.25f;
+    [SerializeField, Range(0.0f, 1.0f)] private float _paddleInfluence = 0.4f;
 
-    private Vector2 direction;
-
-    Rigidbody2D _rb;
+    private Vector2 _direction;
 
     private AudioSource _source;
+    [Header("audio Properties")]
     [SerializeField] private AudioClip _wallHit;
     [SerializeField] private AudioClip _paddleHit;
     [SerializeField] private AudioClip _fail;
+
+    Rigidbody2D _rb;
 
     void Start()
     {
@@ -20,6 +23,11 @@ public class BallBehavior : MonoBehaviour
         _source = GetComponent<AudioSource>();
 
         ResetBall();
+    }
+
+    private void Update()
+    {
+        _rb.simulated = GameBehavior.Instance.State == Utilities.GameState.Play;
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -30,7 +38,10 @@ public class BallBehavior : MonoBehaviour
             {
                 Vector2 direction = _rb.linearVelocity * (1.0f - _paddleInfluence)
                                   + collision.rigidbody.linearVelocity * _paddleInfluence;
-                _rb.linearVelocity = _rb.linearVelocity.magnitude * direction.normalized;
+                direction.Normalize();
+                CheckSteepness(ref direction);
+
+                _rb.linearVelocity = _rb.linearVelocity.magnitude * direction;
             }
             _source.PlayOneShot(_paddleHit);
         }
@@ -45,15 +56,33 @@ public class BallBehavior : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        ResetBall();
+        GameBehavior.Instance.ResetPrefab();
         _source.PlayOneShot(_fail);
+        Invoke(nameof(DestroyBall), _fail.length);
+        GameBehavior.Instance.ResetGame();
+    }
+
+    private void CheckSteepness(ref Vector2 direction)
+    {
+        if (Mathf.Abs(direction.y) < _steepnessThreshold)
+        {
+            direction.y += 0.5f * Mathf.Sign(direction.y);
+            direction.Normalize();
+        }
+    }
+
+    private void DestroyBall()
+    {
+        Destroy(gameObject);
     }
 
     private void ResetBall()
     {
-        _rb.linearVelocity = Vector2.zero;
-        transform.position = Vector3.zero;
+        // _rb.linearVelocity = Vector2.zero;
+        // transform.position = Vector3.zero;
         Vector2 direction = Random.insideUnitCircle.normalized;
+        CheckSteepness(ref direction);
+        direction.y = Mathf.Abs(direction.y);
         _rb.AddForce(direction * _launchForce, ForceMode2D.Impulse);
     }
 }

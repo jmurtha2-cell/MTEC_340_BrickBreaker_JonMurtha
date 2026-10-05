@@ -16,3 +16,11 @@
 
 - Score and UI added
 - Audio implemented for wall hits, paddle hits, brick hits, and game failing
+
+**Assignment: Brick Breaker – State Machine, Brick Lives**
+
+- Added State Machine for pausing
+- added reseting bricks after fail, 
+- added win condition after destroying all of the bricks -> reset all bricks and ball
+- prevented ball from spawning shooting downward
+- changed ball spawn location
